@@ -19,8 +19,8 @@ package org.wso2.carbon.connector.pojo;
 
 import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.connector.connection.EmailProtocol;
+import org.wso2.carbon.connector.core.pool.Configuration;
 import org.wso2.carbon.connector.exception.InvalidConfigurationException;
-import org.wso2.carbon.connector.utils.EmailConstants;
 
 /**
  * Configuration parameters used to establish a connection to the email server
@@ -41,12 +41,15 @@ public class ConnectionConfiguration {
     private String trustedHosts;
     private String sslProtocols;
     private String cipherSuites;
-    private int maxActiveConnections;
-    private int maxIdleConnections;
-    private long maxWaitTime;
-    private long minEvictionTime;
-    private long evictionCheckInterval;
-    private String exhaustedAction;
+    private Configuration configuration;
+
+    public ConnectionConfiguration() {
+
+        this.configuration = new Configuration();
+        // Set default values
+        this.configuration.setExhaustedAction("WHEN_EXHAUSTED_FAIL");
+        this.configuration.setTestOnBorrow(true);
+    }
 
     public String getHost() {
 
@@ -120,12 +123,12 @@ public class ConnectionConfiguration {
         return protocol;
     }
 
-    public void setProtocol(EmailProtocol protocol) throws InvalidConfigurationException {
+    public void setProtocol(String protocol) throws InvalidConfigurationException {
 
-        if (protocol == null) {
+        if (StringUtils.isEmpty(protocol)) {
             throw new InvalidConfigurationException("Mandatory parameter 'protocol' is not set.");
         }
-        this.protocol = protocol;
+        this.protocol = EmailProtocol.valueOf(protocol);
     }
 
     public String getReadTimeout() {
@@ -228,62 +231,71 @@ public class ConnectionConfiguration {
 
     public int getMaxActiveConnections() {
 
-        return maxActiveConnections;
+        return configuration.getMaxActiveConnections();
     }
 
     public void setMaxActiveConnections(int maxActiveConnections) {
 
-        this.maxActiveConnections = maxActiveConnections;
+        this.configuration.setMaxActiveConnections(maxActiveConnections);
     }
 
     public int getMaxIdleConnections() {
 
-        return maxIdleConnections;
+        return configuration.getMaxIdleConnections();
     }
 
     public void setMaxIdleConnections(int maxIdleConnections) {
 
-        this.maxIdleConnections = maxIdleConnections;
+        this.configuration.setMaxIdleConnections(maxIdleConnections);
     }
 
     public long getMaxWaitTime() {
 
-        return maxWaitTime;
+        return configuration.getMaxWaitTime();
     }
 
     public void setMaxWaitTime(long maxWaitTime) {
 
-        this.maxWaitTime = maxWaitTime;
+        this.configuration.setMaxWaitTime(maxWaitTime);
     }
 
     public long getMinEvictionTime() {
 
-        return minEvictionTime;
+        return configuration.getMinEvictionTime();
     }
 
     public void setMinEvictionTime(long minEvictionTime) {
 
-        this.minEvictionTime = minEvictionTime;
+        this.configuration.setMinEvictionTime(minEvictionTime);
     }
 
     public long getEvictionCheckInterval() {
 
-        return evictionCheckInterval;
+        return configuration.getEvictionCheckInterval();
     }
 
     public void setEvictionCheckInterval(long evictionCheckInterval) {
 
-        this.evictionCheckInterval = evictionCheckInterval;
+        this.configuration.setEvictionCheckInterval(evictionCheckInterval);
     }
 
     public String getExhaustedAction() {
 
-        return exhaustedAction;
+        return configuration.getExhaustedAction();
     }
 
     public void setExhaustedAction(String exhaustedAction) {
 
-        this.exhaustedAction = exhaustedAction;
+        this.configuration.setExhaustedAction(exhaustedAction);
     }
 
+    public Configuration getConfiguration() {
+
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+
+        this.configuration = configuration;
+    }
 }

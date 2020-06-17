@@ -28,7 +28,6 @@
     <parameter name="encoding" description="The character encoding of the body"/>
     <parameter name="attachments" description="The attachments that are sent along with the email body"/>
     <parameter name="contentTransferEncoding" description="Encoding used to indicate the type of transformation that is used to represent the body in an acceptable manner for transport"/>
-    <parameter name="connection" description="Connection name of the connection to be used"/>
     <sequence>
         <property name="from" expression="$func:from"/>
         <property name="to" expression="$func:to"/>
@@ -42,7 +41,6 @@
         <property name="encoding" expression="$func:encoding"/>
         <property name="attachments" expression="$func:attachments"/>
         <property name="contentTransferEncoding" expression="$func:contentTransferEncoding"/>
-        <property name="connection" expression="$func:connection"/>
         <class name="org.wso2.carbon.connector.operations.EmailSend" />
     </sequence>
 </template>

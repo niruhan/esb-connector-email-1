@@ -18,7 +18,6 @@
 <template xmlns="http://ws.apache.org/ns/synapse" name="delete">
 	<parameter name="folder" description="Name of the mailbox folder from which to delete the emails"/>
 	<parameter name="emailID" description="Email ID Number of the email to delete"/>
-	<parameter name="connection" description="Connection name of the connection to be used"/>
 	<sequence>
 		<property name="folder" expression="$func:folder"/>
 		<property name="emailID" expression="$func:emailID"/>

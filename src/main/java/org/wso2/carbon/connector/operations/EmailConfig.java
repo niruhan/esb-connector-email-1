@@ -20,7 +20,6 @@ package org.wso2.carbon.connector.operations;
 import org.apache.synapse.ManagedLifecycle;
 import org.apache.synapse.MessageContext;
 import org.apache.synapse.core.SynapseEnvironment;
-import org.wso2.carbon.connector.connection.EmailProtocol;
 import org.wso2.carbon.connector.core.AbstractConnector;
 import org.wso2.carbon.connector.core.connection.ConnectionHandler;
 import org.wso2.carbon.connector.core.util.ConnectorUtils;
@@ -107,7 +106,7 @@ public class EmailConfig extends AbstractConnector implements ManagedLifecycle {
         connectionConfiguration.setPort(port);
         connectionConfiguration.setConnectionName(connectionName);
         connectionConfiguration.setPassword(password);
-        connectionConfiguration.setProtocol(EmailProtocol.valueOf(protocol));
+        connectionConfiguration.setProtocol(protocol);
         connectionConfiguration.setReadTimeout(readTimeout);
         connectionConfiguration.setWriteTimeout(writeTimeout);
         connectionConfiguration.setConnectionTimeout(connectionTimeout);

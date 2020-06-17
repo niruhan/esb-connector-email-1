@@ -48,9 +48,10 @@ public class EmailDelete extends AbstractConnector {
         String emailID = (String) getParameter(messageContext, EmailConstants.EMAIL_ID);
         String connectionName = null;
         ConnectionHandler handler = ConnectionHandler.getConnectionHandler();
+        MailBoxConnection connection = null;
         try {
             connectionName = EmailUtils.getConnectionName(messageContext);
-            MailBoxConnection connection = (MailBoxConnection) handler
+            connection = (MailBoxConnection) handler
                     .getConnection(EmailConstants.CONNECTOR_NAME, connectionName);
             boolean status = EmailUtils.changeEmailState(connection, folder, emailID, Flags.Flag.DELETED,
                     true);
@@ -68,7 +69,9 @@ public class EmailDelete extends AbstractConnector {
             EmailUtils.setErrorsInMessage(messageContext, Error.RESPONSE_GENERATION);
             handleException(format(errorString, folder), e, messageContext);
         } finally {
-            handler.returnConnection(EmailConstants.CONNECTOR_NAME, connectionName);
+            if (connection != null) {
+                handler.returnConnection(EmailConstants.CONNECTOR_NAME, connectionName, connection);
+            }
         }
     }
 }

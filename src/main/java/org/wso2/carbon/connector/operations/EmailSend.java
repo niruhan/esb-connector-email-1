@@ -107,13 +107,7 @@ public class EmailSend extends AbstractConnector {
                         .withAttachments(attachments)
                         .withHeaders(getEmailHeadersFromProperties(messageContext))
                         .build();
-                ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-                try {
-                    Thread.currentThread().setContextClassLoader(javax.mail.Message.class.getClassLoader());
-                    Transport.send(message);
-                } finally {
-                    Thread.currentThread().setContextClassLoader(classLoader);
-                }
+                sendMessage(message);
                 if (log.isDebugEnabled()) {
                     log.debug(format("Email was sent successfully to %s..", to));
                 }
@@ -124,6 +118,23 @@ public class EmailSend extends AbstractConnector {
                 throw new EmailConnectionException(format("Error occurred while adding attachments with subject %s " +
                         "to the email to %s.", subject, to), e);
             }
+        }
+    }
+
+    /**
+     * Sends the message
+     *
+     * @param message Message to be sent
+     * @throws MessagingException if failed to send the message
+     */
+    private void sendMessage(MimeMessage message) throws MessagingException {
+
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(javax.mail.Message.class.getClassLoader());
+            Transport.send(message);
+        } finally {
+            Thread.currentThread().setContextClassLoader(classLoader);
         }
     }
 

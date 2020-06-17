@@ -16,10 +16,10 @@
               "displayName": "Connection",
               "inputType": "connection",
               "allowedConnectionTypes": [
-                "connection.imap",
-                "connection.imaps",
-                "connection.pop3",
-                "connection.pop3s"
+                "imap",
+                "imaps",
+                "pop3",
+                "pop3s"
               ],
               "defaultType": "connection.imap",
               "defaultValue": "",

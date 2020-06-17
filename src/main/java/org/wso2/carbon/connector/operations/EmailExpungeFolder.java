@@ -46,12 +46,13 @@ public class EmailExpungeFolder extends AbstractConnector {
         String folder = (String) getParameter(messageContext, EmailConstants.FOLDER);
         String connectionName = null;
         ConnectionHandler handler = ConnectionHandler.getConnectionHandler();
+        MailBoxConnection connection = null;
         try {
             if (StringUtils.isEmpty(folder)) {
                 folder = EmailConstants.DEFAULT_FOLDER;
             }
             connectionName = EmailUtils.getConnectionName(messageContext);
-            MailBoxConnection connection = (MailBoxConnection) handler
+            connection = (MailBoxConnection) handler
                     .getConnection(EmailConstants.CONNECTOR_NAME, connectionName);
             expungeFolder(connection, folder);
             if (log.isDebugEnabled()) {
@@ -68,7 +69,9 @@ public class EmailExpungeFolder extends AbstractConnector {
             EmailUtils.setErrorsInMessage(messageContext, Error.RESPONSE_GENERATION);
             handleException(format(errorString, folder), e, messageContext);
         } finally {
-            handler.returnConnection(EmailConstants.CONNECTOR_NAME, connectionName);
+            if (connection != null) {
+                handler.returnConnection(EmailConstants.CONNECTOR_NAME, connectionName, connection);
+            }
         }
     }
 
@@ -80,10 +83,13 @@ public class EmailExpungeFolder extends AbstractConnector {
      */
     private void expungeFolder(MailBoxConnection connection, String folder) throws EmailConnectionException {
 
-        if (StringUtils.isEmpty(folder)) {
-            folder = EmailConstants.DEFAULT_FOLDER;
+        try {
+            if (StringUtils.isEmpty(folder)) {
+                folder = EmailConstants.DEFAULT_FOLDER;
+            }
+            connection.getFolder(folder, Folder.READ_WRITE);
+        } finally {
+            connection.closeFolder(true);
         }
-        connection.getFolder(folder, Folder.READ_WRITE);
-        connection.closeFolder(true);
     }
 }

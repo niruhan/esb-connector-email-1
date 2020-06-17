@@ -17,10 +17,8 @@
 -->
 <template xmlns="http://ws.apache.org/ns/synapse" name="expungeFolder">
     <parameter name="folder" description="Name of the mailbox folder where the emails with the DELETED flag are scheduled to be permanently deleted"/>
-    <parameter name="connection" description="Name of the connection to be used"/>
     <sequence>
         <property name="folder" expression="$func:folder"/>
-        <property name="connection" expression="$func:connection"/>
         <class name="org.wso2.carbon.connector.operations.EmailExpungeFolder" />
     </sequence>
 </template>

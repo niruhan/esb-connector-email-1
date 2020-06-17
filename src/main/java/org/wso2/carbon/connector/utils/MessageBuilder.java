@@ -295,4 +295,28 @@ public final class MessageBuilder {
         }
     }
 
+    /**
+     * Add attachment to message with a pre-specified content type
+     *
+     * @param multipart   Multi part body the messages should be added to
+     * @param filePath    File path of the attachment
+     * @param contentType Content Type of the attachment
+     * @throws MessagingException if failed to set attachments
+     * @throws IOException        if an error occurred while reading attachment content
+     */
+    private void addAttachment(MimeMultipart multipart, String filePath, String contentType) throws MessagingException,
+            IOException {
+
+        MimeBodyPart part = new MimeBodyPart();
+        File file = new File(filePath);
+        try (InputStream fin = new FileInputStream(file)) {
+            part.setDisposition(ATTACHMENT);
+            part.setFileName(file.getName());
+            DataHandler dataHandler = new DataHandler(new EmailAttachmentDataSource(file.getName(), fin, contentType));
+            part.setDataHandler(dataHandler);
+            part.setHeader(CONTENT_TYPE_HEADER, dataHandler.getContentType());
+            part.setHeader(CONTENT_TRANSFER_ENCODING_HEADER, this.contentTransferEncoding);
+            multipart.addBodyPart(part);
+        }
+    }
 }

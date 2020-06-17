@@ -18,11 +18,9 @@
 <template xmlns="http://ws.apache.org/ns/synapse" name="markAsDeleted">
     <parameter name="folder" description="Name of the Mailbox folder to retrieve emails from"/>
     <parameter name="emailID" description="Email ID Number of the email to mark as Deleted"/>
-    <parameter name="connection" description="Connection name of the connection to be used"/>
     <sequence>
         <property name="folder" expression="$func:folder"/>
         <property name="emailID" expression="$func:emailID"/>
-        <property name="connection" expression="$func:connection"/>
         <class name="org.wso2.carbon.connector.operations.EmailMarkAsDeleted" />
     </sequence>
 </template>

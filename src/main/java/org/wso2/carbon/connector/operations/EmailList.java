@@ -91,9 +91,10 @@ public class EmailList extends AbstractConnector {
         String connectionName = null;
         String folderName = StringUtils.EMPTY;
         ConnectionHandler handler = ConnectionHandler.getConnectionHandler();
+        MailBoxConnection connection = null;
         try {
             connectionName = EmailUtils.getConnectionName(messageContext);
-            MailBoxConnection connection = (MailBoxConnection) handler
+            connection = (MailBoxConnection) handler
                     .getConnection(EmailConstants.CONNECTOR_NAME, connectionName);
             MailboxConfiguration mailboxConfiguration = getMailboxConfigFromContext(messageContext);
             folderName = mailboxConfiguration.getFolder();
@@ -110,7 +111,9 @@ public class EmailList extends AbstractConnector {
             EmailUtils.setErrorsInMessage(messageContext, Error.RESPONSE_GENERATION);
             handleException(format(errorString, folderName), e, messageContext);
         } finally {
-            handler.returnConnection(EmailConstants.CONNECTOR_NAME, connectionName);
+            if (connection != null) {
+                handler.returnConnection(EmailConstants.CONNECTOR_NAME, connectionName, connection);
+            }
         }
     }
 
@@ -139,16 +142,18 @@ public class EmailList extends AbstractConnector {
             addTextElement(factory, emailElement, EMAIL_BCC_ELEMENT, emailMessage.getBcc());
             addTextElement(factory, emailElement, EMAIL_REPLY_TO_ELEMENT, emailMessage.getReplyTo());
             addTextElement(factory, emailElement, EMAIL_SUBJECT_ELEMENT, emailMessage.getSubject());
-            OMElement attachmentsElement = factory.createOMElement(ATTACHMENTS_ELEMENT);
-            for (int j = 0; j < emailMessage.getAttachments().size(); j++) {
-                Attachment attachment = emailMessage.getAttachments().get(j);
-                OMElement attachmentElement = factory.createOMElement(ATTACHMENT_ELEMENT);
-                addTextElement(factory, attachmentElement, INDEX_ELEMENT, Integer.toString(j));
-                addTextElement(factory, attachmentElement, ATTACHMENT_NAME, attachment.getName());
-                addTextElement(factory, attachmentElement, ATTACHMENT_CONTENT_TYPE, attachment.getContentType());
-                attachmentsElement.addChild(attachmentElement);
+            if (emailMessage.getAttachments() != null){
+                OMElement attachmentsElement = factory.createOMElement(ATTACHMENTS_ELEMENT);
+                for (int j = 0; j < emailMessage.getAttachments().size(); j++) {
+                    Attachment attachment = emailMessage.getAttachments().get(j);
+                    OMElement attachmentElement = factory.createOMElement(ATTACHMENT_ELEMENT);
+                    addTextElement(factory, attachmentElement, INDEX_ELEMENT, Integer.toString(j));
+                    addTextElement(factory, attachmentElement, ATTACHMENT_NAME, attachment.getName());
+                    addTextElement(factory, attachmentElement, ATTACHMENT_CONTENT_TYPE, attachment.getContentType());
+                    attachmentsElement.addChild(attachmentElement);
+                }
+                emailElement.addChild(attachmentsElement);
             }
-            emailElement.addChild(attachmentsElement);
             emailsElement.addChild(emailElement);
         }
         PayloadUtils.setPayloadInEnvelope(axis2MsgCtx, emailsElement);
@@ -203,11 +208,11 @@ public class EmailList extends AbstractConnector {
     private List<EmailMessage> retrieveMessages(MailBoxConnection connection, MailboxConfiguration mailboxConfiguration)
             throws EmailConnectionException, EmailParsingException {
 
+        List<EmailMessage> messageList;
+        boolean deleteAfterRetrieval = mailboxConfiguration.getDeleteAfterRetrieve();
         try {
             String folderName = mailboxConfiguration.getFolder();
-
             Folder mailbox;
-            boolean deleteAfterRetrieval = mailboxConfiguration.getDeleteAfterRetrieve();
             if (deleteAfterRetrieval) {
                 mailbox = connection.getFolder(folderName, Folder.READ_WRITE);
             } else {
@@ -217,13 +222,14 @@ public class EmailList extends AbstractConnector {
                 log.debug(format("Retrieving messages from Mail folder: %s ...", folderName));
             }
             Message[] messages = mailbox.search(getSearchTerm(mailboxConfiguration));
-            List<EmailMessage> messageList = parseMessageList(getPaginatedMessages(messages,
+            messageList = parseMessageList(getPaginatedMessages(messages,
                     mailboxConfiguration.getOffset(), mailboxConfiguration.getLimit(), deleteAfterRetrieval));
-            connection.closeFolder(deleteAfterRetrieval);
-            return messageList;
         } catch (MessagingException e) {
             throw new EmailConnectionException("Error occurred when searching emails. %s", e);
+        } finally {
+            connection.closeFolder(deleteAfterRetrieval);
         }
+        return messageList;
     }
 
     /**

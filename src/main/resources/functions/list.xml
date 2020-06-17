@@ -16,7 +16,6 @@
    under the License.
 -->
 <template xmlns="http://ws.apache.org/ns/synapse" name="list">
-	<parameter name="connection" description="Name of the connection to be used."/>
 	<parameter name="deleteAfterRetrieve" description="Whether the email should be deleted after retrieving"/>
 	<parameter name="receivedSince" description="The date after which to retrieve received emails"/>
 	<parameter name="receivedUntil" description="The date until which to retrieve received emails"/>
@@ -32,7 +31,6 @@
 	<parameter name="limit" description="The number of emails to be retrieved"/>
 	<parameter name="folder" description="Name of the Mailbox folder to retrieve emails from"/>
 	<sequence>
-		<property name="connection" expression="$func:connection"/>
 		<property name="deleteAfterRetrieve" expression="$func:deleteAfterRetrieve"/>
 		<property name="receivedSince" expression="$func:receivedSince"/>
 		<property name="receivedUntil" expression="$func:receivedUntil"/>

@@ -47,9 +47,10 @@ public class EmailMarkAsDeleted extends AbstractConnector {
         String errorString = "Error occurred while marking email with ID: %s as deleted.";
         String connectionName = null;
         ConnectionHandler handler = ConnectionHandler.getConnectionHandler();
+        MailBoxConnection connection = null;
         try {
             connectionName = EmailUtils.getConnectionName(messageContext);
-            MailBoxConnection connection = (MailBoxConnection) handler
+            connection = (MailBoxConnection) handler
                     .getConnection(EmailConstants.CONNECTOR_NAME, connectionName);
             boolean status = EmailUtils.changeEmailState(connection, folder, emailID, Flags.Flag.DELETED,
                     false);
@@ -67,7 +68,9 @@ public class EmailMarkAsDeleted extends AbstractConnector {
             EmailUtils.setErrorsInMessage(messageContext, Error.RESPONSE_GENERATION);
             handleException(format(errorString, folder), e, messageContext);
         } finally {
-            handler.returnConnection(EmailConstants.CONNECTOR_NAME, connectionName);
+            if (connection != null) {
+                handler.returnConnection(EmailConstants.CONNECTOR_NAME, connectionName, connection);
+            }
         }
 
     }
